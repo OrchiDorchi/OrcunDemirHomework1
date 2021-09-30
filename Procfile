@@ -1,0 +1,1 @@
+web: java -jar build/libs/OrcunDemirHomework1-all.jar
