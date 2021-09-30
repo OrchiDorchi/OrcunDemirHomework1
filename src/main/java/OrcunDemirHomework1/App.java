@@ -39,17 +39,20 @@ public class App {
             String input2 = req.queryParams("input2");
             String input3 = req.queryParams("input3");
             String input4 = req.queryParams("input4");
-
+            Map<String, ArrayList> map = new HashMap<String, ArrayList>();
             ArrayList<String> names = new ArrayList<>();
             Scanner scanner = new Scanner(input1);
             while (scanner.hasNext()) {
                 names.add(scanner.next());
             }
             scanner.close();
-
-            ArrayList<String> result = search(names, Integer.parseInt(input2), Integer.parseInt(input3), input4);
-            Map<String, ArrayList> map = new HashMap<String, ArrayList>();
-
+            ArrayList<String> result = null;
+            try {
+                result = search(names, Integer.parseInt(input2), Integer.parseInt(input3), input4);
+            } catch (Exception e) {
+                map.put("result", new ArrayList<String>(Arrays.asList("cannot computed.")));
+                return new ModelAndView(map, "search.mustache");
+            }
             map.put("result", result);
             return new ModelAndView(map, "search.mustache");
         }, new MustacheTemplateEngine());
