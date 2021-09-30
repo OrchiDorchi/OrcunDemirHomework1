@@ -4,6 +4,11 @@
 package OrcunDemirHomework1;
 
 import java.util.*;
+import static spark.Spark.get;
+import static spark.Spark.port;
+import static spark.Spark.post;
+import spark.ModelAndView;
+import spark.template.mustache.MustacheTemplateEngine;
 
 public class App {
     public static ArrayList<String> search(ArrayList<String> names, Integer minLength, Integer maxLength,
@@ -18,12 +23,40 @@ public class App {
         return res;
     }
 
+    static int getHerokuAssignedPort() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get("PORT") != null) {
+            return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+        return 4567; // return default port if heroku-port isn't set (i.e. on localhost)
+    }
+
     public static void main(String[] args) {
-        ArrayList<String> list = new ArrayList<>();
-        list.add("Zomado");
-        list.add("Mamadollahulazzim");
-        list.add("Orci");
-        list.add("Mamado");
-        System.out.println(search(list, 4, 101, "masdfdo"));
+        port(getHerokuAssignedPort());
+
+        post("/", (req, res) -> {
+            String input1 = req.queryParams("input1");
+            String input2 = req.queryParams("input2");
+            String input3 = req.queryParams("input3");
+            String input4 = req.queryParams("input4");
+
+            ArrayList<String> names = new ArrayList<>();
+            Scanner scanner = new Scanner(input1);
+            while (scanner.hasNext()) {
+                names.add(scanner.next());
+            }
+            scanner.close();
+
+            ArrayList<String> result = search(names, Integer.parseInt(input2), Integer.parseInt(input3), input4);
+            Map<String, ArrayList> map = new HashMap<String, ArrayList>();
+
+            map.put("result", result);
+            return new ModelAndView(map, "search.mustache");
+        }, new MustacheTemplateEngine());
+        get("/", (rq, rs) -> {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("result", "not computed yet!");
+            return new ModelAndView(map, "search.mustache");
+        }, new MustacheTemplateEngine());
     }
 }
